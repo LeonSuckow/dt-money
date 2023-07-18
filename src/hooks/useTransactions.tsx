@@ -19,41 +19,57 @@ type TransactionProps = {
 
 type CreateTransactionInputProps = Omit<TransactionProps, 'id' | 'createdAt'>
 
-interface TransactionProviderProps{
+interface TransactionProviderProps {
   children: ReactNode
 }
 
-interface TransactionContextData{
+interface TransactionContextData {
   transactions: TransactionProps[],
-  createTransaction : (transaction: CreateTransactionInputProps) => Promise<void>
+  createTransaction: (transaction: CreateTransactionInputProps) => Promise<void>
+  deleteTransaction: (transactionId: number) => Promise<void>
 }
 
 const TransactionsContext = createContext<TransactionContextData>({} as TransactionContextData);
 
 
-export function TransactionProvider({ children }: TransactionProviderProps){
+export function TransactionProvider({ children }: TransactionProviderProps) {
   const [transactions, setTransactions] = useState<TransactionProps[]>([]);
 
   useEffect(() => {
-    api.get('/transactions')
+    api.get('/transaction')
       .then(response => setTransactions(response.data.transactions));
   }, []);
 
-  async function createTransaction(transactionInput : CreateTransactionInputProps){
-    const response = await api.post('/transactions', transactionInput)
+  async function createTransaction(transactionInput: CreateTransactionInputProps) {
+    const response = await api.post('/transaction', transactionInput)
     const { transaction } = response.data;
-    setTransactions([...transactions, transaction])
+    // Criar uma cópia temporária do conjunto original
+    const transactionsCopy = new Set(transactions);
+
+    // Adicionar a nova transação à cópia temporária
+    transactionsCopy.add(transaction);
+
+    // Atualizar o conjunto original apenas se todas as operações forem concluídas sem erros
+    setTransactions(Array.from(transactionsCopy));
   }
 
-  return(
-    <TransactionsContext.Provider value={{transactions, createTransaction}}>
+  async function deleteTransaction(transactionId: number) {
+    const response = await api.delete(`/transaction/${transactionId}`)
+    if (response.status === 200) {
+      const filteredTransactions = transactions.filter(transaction => transaction.id !== transactionId);
+      setTransactions(filteredTransactions);
+    }
+  }
+
+  return (
+    <TransactionsContext.Provider value={{ transactions, createTransaction, deleteTransaction }}>
       {children}
     </TransactionsContext.Provider>
   );
 }
 
 
-export function useTransactions(){
+export function useTransactions() {
   const context = useContext(TransactionsContext);
   return context;
 }

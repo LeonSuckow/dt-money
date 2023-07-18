@@ -11,7 +11,7 @@ export const Container = styled.div`
     padding: 1.5rem 2rem;
     border-radius: 0.25rem;
     color: var(--text-title);
-
+    transition: 0.4s background-color ease;
     header{
       display:flex;
       align-items:center;
@@ -26,7 +26,12 @@ export const Container = styled.div`
       line-height: 3rem;
     }
 
-    &.highlight-background{
+    &.highlight-background-red{
+      background-color: var(--red);
+      color: #fff
+    }
+
+    &.highlight-background-green{
       background-color: var(--green);
       color: #fff
     }

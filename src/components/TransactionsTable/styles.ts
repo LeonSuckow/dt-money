@@ -32,6 +32,15 @@ export const Container = styled.div`
       &.withdraw{
         color: var(--red);
       }
+      & button{
+        background-color: transparent;
+        outline: 0;
+        border: none;
+      }
+      & .delete-icon{
+        color: var(--red)
+      }
     }
+
   }
 `;

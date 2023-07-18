@@ -1,13 +1,17 @@
+import { useEffect, useRef } from "react";
 import incomeImg from '../../assets/income.svg';
 import outcomeImg from '../../assets/outcome.svg';
 import totalImg from '../../assets/total.svg';
 import { useTransactions } from '../../hooks/useTransactions';
 import { Container } from "./styles";
+import { useCountUp } from 'react-countup';
+import CountUpNumber from "../CountUpNumber";
+
 
 export function Summary() {
   const { transactions } = useTransactions();
 
-  const sumary = transactions.reduce((acc, transaction) => {
+  const summary = transactions.reduce((acc, transaction) => {
     if (transaction.type === 'deposit') {
       acc.deposits += transaction.amount;
       acc.total += transaction.amount
@@ -22,6 +26,38 @@ export function Summary() {
     total: 0
   })
 
+
+  let defaultValuesCountUp = {
+    start: 0,
+    duration: 1,
+    end: 0,
+    prefix: 'R$',
+    decimals: 2,
+    decimal: ',',
+  }
+
+  const { update: updateCountUpDeposits } = useCountUp({
+    ...defaultValuesCountUp,
+    ref: 'countUpDepositsRef',
+  })
+
+  const { update: updateCountUpWithdraw } = useCountUp({
+    ...defaultValuesCountUp,
+    ref: 'countUpWithdrawsRef',
+    prefix: 'R$ -',
+  })
+
+  const { update: updateCountUpTotal } = useCountUp({
+    ...defaultValuesCountUp,
+    ref: 'countUpTotalRef',
+  })
+
+  useEffect(() => {
+    updateCountUpDeposits(summary.deposits)
+    updateCountUpWithdraw(summary.withdraws)
+    updateCountUpTotal(summary.total)
+  }, [summary])
+
   return (
     <Container>
       <div>
@@ -29,33 +65,23 @@ export function Summary() {
           <p>Entradas</p>
           <img src={incomeImg} alt="Entradas" />
         </header>
-        <strong>
-          {new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-          }).format(sumary.deposits)}
-        </strong>
+        {/* <CountUpNumber ref='countUpDepositsRef' end={summary.deposits}/> */}
+        <strong id="countUpDepositsRef"></strong>
       </div>
       <div>
         <header>
           <p>Saídas</p>
           <img src={outcomeImg} alt="Saídas" />
         </header>
-        <strong>-  {new Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        }).format(sumary.withdraws)}</strong>
+        <strong id="countUpWithdrawsRef"></strong>
       </div>
-      <div className="highlight-background">
+      <div className={`${summary.total >= 0 ? `highlight-background-green` : `highlight-background-red`}`}>
         <header>
           <p>Total</p>
           <img src={totalImg} alt="Total" />
         </header>
-        <strong> {new Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL'
-        }).format(sumary.total)}</strong>
+        <strong id="countUpTotalRef"></strong>
       </div>
-    </Container>
+    </Container >
   );
 }
