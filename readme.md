@@ -4,7 +4,7 @@ O dt-money é um gerenciador de finanças simples desenvolvido em React, permiti
 Site demonstrativo
 https://leonsuckow.github.io/dt-money/
 
-![dt-money]((https://github.com/LeonSuckow/dt-money/blob/src/assets/dt-money.png))
+![dt-money](https://github.com/LeonSuckow/dt-money/blob/main/src/assets/dt-money.png?raw=true)
 
 
 
